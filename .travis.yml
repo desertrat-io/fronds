@@ -35,7 +35,7 @@ matrix:
 #        - php artisan dusk
         - ./vendor/bin/phpunit
       after_success:
-        - travis_retry php php-coveralls.phar
+        - travis_retry php php-coveralls.phar -vvv
 
     - language: node_js
 
