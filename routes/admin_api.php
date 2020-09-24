@@ -9,5 +9,6 @@ Route::group(['prefix' => 'v1', 'namespace' => 'api\v1'], static function () {
     // api/{version}/{actionName}
     Route::group(['namespace' => 'Action'], static function () {
         Route::apiResource('page', 'PageActionController');
+        Route::apiResource('menus', 'MenuActionController');
     });
 });

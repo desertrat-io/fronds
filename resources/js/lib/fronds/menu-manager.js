@@ -92,8 +92,8 @@ export class MenuManager extends Fronds {
 
     commit() {
         Object.entries(registry).forEach(menuItem => {
-            const menuName = menuItem[0];
-            const menu = menuItem[1];
+            const menuName = menuItem[0],
+                menu = menuItem[1];
             this.bindMenuEvents(
                 Fronds.getFirstByDataName("shows-menu", menuName),
                 "click",

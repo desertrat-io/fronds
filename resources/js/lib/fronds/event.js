@@ -1,7 +1,7 @@
-const attachSym = Symbol("attachEventTo");
-const ofTypeSym = Symbol("ofType");
-const withMethodSym = Symbol("withMethod");
-const eventBuild = {};
+const attachSym = Symbol("attachEventTo"),
+    ofTypeSym = Symbol("ofType"),
+    withMethodSym = Symbol("withMethod"),
+    eventBuild = {};
 class Event {
     constructor() {
         eventBuild[attachSym].addEventListener(eventBuild[ofTypeSym], eventBuild[withMethodSym]);

@@ -1,13 +1,14 @@
 <template>
     <div class="col-12">
         <!-- -->
-        <b-form ref="fronds_form_ref"
+        <b-form :id="id"
+                ref="fronds_form_ref"
                 class="fronds-form"
-                :id="id"
-                @submit.stop.prevent
                 :inline="horizontal"
+                :method="withMethod"
+                @submit.stop.prevent
                 @keyup.enter="submitForm"
-                :method="withMethod">
+        >
             <slot></slot>
         </b-form>
     </div>
@@ -22,6 +23,65 @@
 
 
     export default {
+        components: {
+            BForm
+        },
+        mixins: [FrondsApi, FrondsEvents],
+        props: {
+            spinnerType: {
+                type: String,
+                required: false,
+                default: "cog"
+            },
+            submitting: {
+                type: Boolean,
+                required: false,
+                default: false
+            },
+            id: {
+                type: String,
+                required: true
+            },
+            horizontal: {
+                type: Boolean,
+                required: false,
+                default: false
+            },
+            submitsTo: {
+                type: String,
+                required: false,
+                default: "#"
+            },
+            withMethod: {
+                type: String,
+                required: false,
+                default: METHODS.POST,
+                validator: value => {
+                    return [
+                        METHODS.POST,
+                        METHODS.GET,
+                        METHODS.PUT,
+                        METHODS.DELETE
+                    ].indexOf(value.toUpperCase()) !== -1;
+                }
+            },
+            inMode: {
+                type: String,
+                required: false,
+                default: "web",
+                validator: value => {
+                    return ["web", "api"].indexOf(value) !== -1;
+                }
+            }
+
+        },
+        data() {
+            return {
+                formInputs: [],
+                returnedInputs: [],
+                hasRsvp: null
+            };
+        },
         created() {
             EventBus.$on("fronds-form-confirm", () => {
                 this.submitForm();
@@ -34,21 +94,13 @@
                     this.completeApiSubmission(networkResult.networkData.data);
                     if (networkResult.networkData.data.hasOwnProperty("rsvp")) {
                         this.completeRsvpApiSubmission(networkResult.networkData.data.rsvp.to,
-                            networkResult.networkData.data.rsvp.using,
-                            networkResult.networkData.data.rsvp.with);
+                                                       networkResult.networkData.data.rsvp.using,
+                                                       networkResult.networkData.data.rsvp.with);
                         this.hasRsvp = true;
                     }
                 }
             });
         },
-        data() {
-            return {
-                formInputs: [],
-                returnedInputs: [],
-                hasRsvp: null
-            };
-        },
-        mixins: [FrondsApi, FrondsEvents],
         methods: {
             completeApiSubmission(data) {
                 if (this.hasRsvp) {
@@ -96,57 +148,6 @@
             submitFormDefault() {
                 this.$refs.fronds_form_ref.submit();
             }
-        },
-        props: {
-            spinnerType: {
-                type: String,
-                required: false,
-                default: "cog"
-            },
-            submitting: {
-                type: Boolean,
-                required: false,
-                default: false
-            },
-            id: {
-                type: String,
-                required: true
-            },
-            horizontal: {
-                type: Boolean,
-                required: false,
-                default: false
-            },
-            submitsTo: {
-                type: String,
-                required: false,
-                default: "#"
-            },
-            withMethod: {
-                type: String,
-                required: false,
-                default: METHODS.POST,
-                validator: value => {
-                    return [
-                        METHODS.POST,
-                        METHODS.GET,
-                        METHODS.PUT,
-                        METHODS.DELETE
-                    ].indexOf(value.toUpperCase()) !== -1;
-                }
-            },
-            inMode: {
-                type: String,
-                required: false,
-                default: "web",
-                validator: value => {
-                    return ["web", 'api'].indexOf(value) !== -1;
-                }
-            }
-
-        },
-        components: {
-            BForm
         }
-    }
+    };
 </script>

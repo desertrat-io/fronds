@@ -45,6 +45,9 @@ export default {
         },
         fireGatherInputs() {
             EventBus.$emit("fronds-gather-inputs");
+        },
+        fireFrondsClearForm() {
+            EventBus.$emit("fronds-clear-form");
         }
     }
-}
+};

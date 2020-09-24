@@ -1,5 +1,5 @@
-const frondsConfigSym = Symbol("fronds_config");
-const eventsSym = Symbol("events");
+const frondsConfigSym = Symbol("fronds_config"),
+    eventsSym = Symbol("events");
 
 export class Fronds {
 

@@ -3,9 +3,9 @@ const Fronds = {};
 (function() {
     Fronds.getMenuManager = function() {
         return new MenuManager();
-    }
+    };
 })();
 window.Fronds = Fronds;
 if (window.hasOwnProperty("defaultBooted")) {
-    window["defaultBooted"]();
+    window.defaultBooted();
 }
