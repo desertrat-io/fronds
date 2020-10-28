@@ -20,7 +20,7 @@ trait FrondsUsesUUID
     protected static function booted()
     {
         static::creating(static function ($model) {
-            $model->{static::$uuidColName} = Uuid::generate();
+            $model->{static::$uuidColName} = Uuid::generate()->string;
         });
     }
 }

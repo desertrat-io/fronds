@@ -9,6 +9,7 @@ use Fronds\Http\Requests\MenuRequest;
 use Fronds\Lib\Constants\HttpConstants;
 use Fronds\Lib\Exceptions\FrondsException;
 use Fronds\Repositories\Structure\MenuDefinitionRepository;
+use Fronds\Repositories\Structure\MenuItemRepository;
 use Fronds\Services\StructureServices\MenuService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -25,11 +26,16 @@ class MenuActionController extends ApiController
 {
 
     private MenuDefinitionRepository $menuDefRepo;
+    private MenuItemRepository $menuItemRepo;
     private MenuService $menuService;
 
-    public function __construct(MenuDefinitionRepository $menuDefRepo, MenuService $menuService)
-    {
+    public function __construct(
+        MenuDefinitionRepository $menuDefRepo,
+        MenuItemRepository $menuItemRepo,
+        MenuService $menuService
+    ) {
         $this->menuDefRepo = $menuDefRepo;
+        $this->menuItemRepo = $menuItemRepo;
         $this->menuService = $menuService;
     }
 
@@ -70,24 +76,37 @@ class MenuActionController extends ApiController
     /**
      * Display the specified resource.
      *
-     * @param  int  $id
-     * @return Response
+     * @param  string  $id
+     * @return JsonResponse
      */
     public function show($id): JsonResponse
     {
-        //
+        try {
+            $singleMenu = $this->menuDefRepo->getBasicMenuDefByUuid($id);
+            $this->currentResponse = $this->apiSuccess('Menu info retrieved', $singleMenu->toArray());
+            return $this->currentResponse;
+        } catch (FrondsException $exception) {
+            $this->currentResponse = $this->apiError($exception);
+            return $this->currentResponse;
+        }
     }
 
     /**
-     * Update the specified resource in storage.
-     *
-     * @param  Request  $request
-     * @param  int  $id
-     * @return Response
+     * @param  MenuRequest  $request
+     * @param $id
+     * @return JsonResponse
      */
-    public function update(Request $request, $id): JsonResponse
+    public function update(MenuRequest $request, $id): JsonResponse
     {
-        //
+        try {
+            $this->menuDefRepo
+                ->updateExistingMenuDef($id, $request->only(['title', 'type']), $request->input('items'));
+            $this->currentResponse = $this->apiSuccess('Update successful');
+            return $this->currentResponse;
+        } catch (FrondsException $exception) {
+            $this->currentResponse = $this->apiError($exception);
+            return $this->currentResponse;
+        }
     }
 
     /**
@@ -99,5 +118,14 @@ class MenuActionController extends ApiController
     public function destroy($id): JsonResponse
     {
         //
+    }
+
+    /**
+     * @param $id
+     * @return JsonResponse
+     */
+    public function destroyMenuItem($id): JsonResponse
+    {
+
     }
 }

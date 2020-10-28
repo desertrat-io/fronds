@@ -5,9 +5,11 @@ declare(strict_types=1);
 namespace Fronds\Repositories\Structure;
 
 use Fronds\Lib\Exceptions\Data\FrondsCreateEntityException;
+use Fronds\Lib\Exceptions\Data\FrondsEntityNotFoundException;
 use Fronds\Lib\Exceptions\FrondsException;
 use Fronds\Models\MenuItem;
 use Fronds\Repositories\FrondsRepository;
+use phpDocumentor\Reflection\Types\Boolean;
 
 /**
  * Class MenuItemRepository
@@ -34,13 +36,25 @@ class MenuItemRepository extends FrondsRepository
         $result = MenuItem::create(
             [
                 'menu_definition_id' => $menuDefinitionId,
-                'direct_to' => $menuItemData['directs_to'] ?? null,
+                'direct_to' => $menuItemData['direct_to'] ?? null,
                 'external_link' => $menuItemData['external_link'] ?? null,
                 'label' => $menuItemData['label'] ?? '',
                 'list_order' => $menuItemData['list_order'] ?? 0,
             ]
         );
         fronds_throw_if($result === null, FrondsCreateEntityException::class, 'Error creating menu item');
+        return $result;
+    }
+
+    /**
+     * @param  string  $menuItemId
+     * @return bool
+     * @throws FrondsException<FrondsEntityNotFoundException>
+     */
+    public function removeMenuItem(string $menuItemId): bool
+    {
+        $result = MenuItem::whereUuid($menuItemId)->delete();
+        fronds_throw_if($result === null, FrondsEntityNotFoundException::class, 'No item to remove');
         return $result;
     }
 }

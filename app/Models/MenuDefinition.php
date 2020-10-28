@@ -7,6 +7,7 @@ namespace Fronds\Models;
 use Eloquent;
 use Fronds\Lib\Traits\FrondsUsesUUID;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -41,6 +42,8 @@ use Illuminate\Support\Carbon;
  * @method static \Illuminate\Database\Query\Builder|MenuDefinition withTrashed()
  * @method static \Illuminate\Database\Query\Builder|MenuDefinition withoutTrashed()
  * @mixin Eloquent
+ * @property-read Collection|MenuItem[] $items
+ * @property-read int|null $items_count
  */
 class MenuDefinition extends Model
 {
@@ -54,6 +57,12 @@ class MenuDefinition extends Model
         'is_hidden'
     ];
 
+    protected $hidden = [
+        'id',
+        'deleted_at',
+        'created_at',
+        'is_hidden'
+    ];
 
 
     public function items(): HasMany

@@ -49,7 +49,7 @@
                             />
                         </b-form-group>
                         <div id="fronds-menu-item-popover-anchor">
-                    &nbsp;
+                            &nbsp;
                         </div>
                         <p v-if="markedItemRows.length > 0" class="fronds-error-msg">
                             One or more items had errors
@@ -82,7 +82,7 @@
 
                         <fronds-button btn-text="Add Item" btn-type="a" :btn-styles="{color: '#3147AA', display:'inline-block'}"
                                        :btn-outer-styles="{backgroundColor: 'transparent', display: 'inline'}"
-                                       btn-id="fronds-menu-item-add-btn" @click="creatingItem = true"
+                                       btn-id="fronds-menu-item-add-btn" @click="addItem"
                         >
                             <font-awesome-icon size="1x" :icon="['fas','plus']"></font-awesome-icon>
                         </fronds-button>
@@ -104,7 +104,7 @@
                             </fronds-button>
                         </div>
                         <b-form-group label="Direct to" label-for="fronds-menu-item-direct-to">
-                            <b-form-select id="fronds-menu-item-direct-to" v-model="menuItem.directsTo" :options="directTo"
+                            <b-form-select id="fronds-menu-item-direct-to" v-model="menuItem.directTo" :options="directTo"
                                            name="fronds-menu-item-direct-to"
                             ></b-form-select>
                             <p class="fronds-text-help">
@@ -248,18 +248,21 @@
                     }
                 ],
                 menuItem: {
-                    directsTo: "external",
+                    directTo: "external",
                     link: "",
                     label: "",
                     listOrder: 0,
                     errorMsgs: [],
-                    valid: null
+                    valid: null,
+                    uuid: ""
                 },
                 markedItemRows: [],
                 editingMenuIndex: null,
                 showDeleteConfirm: false,
                 selectedIndexToDelete: "",
-                itemErrors: []
+                itemErrors: [],
+                isEditMode: false,
+                menuId: ""
             };
         },
         computed: {
@@ -278,28 +281,80 @@
             },
             finalizedMenuItems() {
                 return this.menu.items.map(menuItem => {
-                    return {
-                        "directs_to": menuItem.directsTo,
+                    const baseItem = {
+                        "direct_to": menuItem.directTo,
                         "external_link": menuItem.link,
                         "label": menuItem.label,
                         "list_order": menuItem.listOrder
                     };
+                    if (menuItem.uuid !== "" && menuItem.uuid !== null) {
+                        baseItem.uuid = menuItem.uuid;
+                    }
+                    return baseItem;
                 });
             }
         },
         mounted() {
-            EventBus.$on("fronds-add-menu-modal", () => {
+            EventBus.$on("fronds-edit-menu-modal", rowClicked => {
+                this.isEditMode = true;
                 this.showMenuModal = true;
+                this.isBusy = true;
+                this.modalMenuTitle = "Edit Menu";
+                this.menuId = rowClicked.fullRowValues.id;
+                this.loadExisting(rowClicked.fullRowValues.id);
             });
-            // for now, just haven't implemented edit yet
-            this.modalMenuTitle = "Create Menu";
+
+            EventBus.$on("fronds-add-menu-modal", () => {
+                this.isEditMode = false;
+                this.showMenuModal = true;
+                this.modalMenuTitle = "Create Menu";
+            });
 
         },
         methods: {
+            addItem() {
+                this.creatingItem = true;
+                this.resetItem(null);
+            },
+            loadExisting(menuId) {
+                axios.get(this.endpointUri + "/" + menuId).then(response => {
+                    this.menu.title.value = response.data.data.menu_title;
+                    this.menu.type.value = response.data.data.menu_type;
+                    if (response.data.data.items.length > 0) {
+                        response.data.data.items.forEach(item => {
+                            this.menu.items.push(
+                                {
+                                    directTo: item.direct_to,
+                                    link: item.external_link,
+                                    label: item.label,
+                                    listOrder: item.list_order,
+                                    errorMsgs: [],
+                                    valid: null,
+                                    uuid: item.uuid
+                                }
+                            );
+                        });
+                    }
+                    this.isBusy = false;
+                }).catch(errorResponse => {
+                    this.$bvModal.msgBoxOk(JSON.stringify(errorResponse.response.data.error), {
+                        size: "sm",
+                        okVariant: "danger",
+                        centered: true,
+                        id: "fronds-edit-menu-message-failure"
+                    });
+                    this.isBusy = false;
+                });
+            },
             cancelItem() {
                 this.creatingItem = false;
                 this.editingMenuIndex = null;
-                this.resetItem();
+                if (this.menuItem.uuid !== "") {
+                    this.resetItem(this.menuItem.uuid);
+                }
+                else {
+                    this.resetItem(null);
+                }
             },
             saveItem() {
                 this.creatingItem = false;
@@ -310,14 +365,15 @@
                 else {
                     this.menu.items.push(this.menuItem);
                 }
-                this.resetItem();
+                this.resetItem(null);
             },
-            resetItem() {
+            resetItem(id) {
                 this.menuItem = {
-                    directsTo: "external",
+                    directTo: "external",
                     link: "",
                     label: "",
-                    listOrder: 0
+                    listOrder: 0,
+                    uuid: id
                 };
             },
             showRemoveItemPopover(itemIndex) {
@@ -336,8 +392,11 @@
             editItem(itemIndex) {
                 this.menuItem.listOrder = this.menu.items[itemIndex].listOrder;
                 this.menuItem.label = this.menu.items[itemIndex].label;
-                this.menuItem.directsTo = this.menu.items[itemIndex].directsTo;
+                this.menuItem.directTo = this.menu.items[itemIndex].directTo;
                 this.menuItem.link = this.menu.items[itemIndex].link;
+                if (this.menu.items[itemIndex].uuid !== "") {
+                    this.menuItem.uuid = this.menu.items[itemIndex].uuid;
+                }
                 this.creatingItem = true;
                 this.editingMenuIndex = itemIndex;
             },
@@ -353,12 +412,41 @@
                     menuItem.valid = null;
                     // eslint-disable-next-line no-param-reassign
                     menuItem.errorMsgs = [];
+                    // eslint-disable-next-line no-param-reassign
+                    menuItem.uuid = "";
                 });
+            },
+            renderErrors(errorResponse) {
+                Object.keys(errorResponse.response.data.errors).forEach(errorKey => {
+                    if (errorKey.indexOf("items") === 0) {
+                        errorResponse.response.data.errors[errorKey].forEach(err => this.itemErrors.push(err));
+                        this.menu.items.forEach((menuItem, index) => {
+                            if (errorKey.indexOf("items." + index) === 0 && this.markedItemRows.indexOf(index) === -1) {
+                                this.markedItemRows.push(index);
+                            }
+                        });
+
+                    }
+                    else {
+                        this.menu[errorKey].valid = false;
+                        this.menu[errorKey].errorMsgs = errorResponse.response.data.errors[errorKey];
+                    }
+                });
+
             },
             saveMenu: function () {
                 this.isBusy = true;
                 this.markedItemRows = [];
                 this.itemErrors = [];
+                if (this.isEditMode) {
+                    this.updateMenu();
+                }
+                else {
+                    this.createMenu();
+                }
+            },
+            createMenu: function () {
+
                 axios.post(this.finalEndpointUri, {
                     "title": this.menu.title.value,
                     "type": this.menu.type.value,
@@ -376,21 +464,29 @@
                         });
                     }
                 }).catch(errorResponse => {
-                    Object.keys(errorResponse.response.data.errors).forEach(errorKey => {
-                        if (errorKey.indexOf("items") === 0) {
-                            errorResponse.response.data.errors[errorKey].forEach(err => this.itemErrors.push(err));
-                            this.menu.items.forEach((menuItem, index) => {
-                                if (errorKey.indexOf("items." + index) === 0 && this.markedItemRows.indexOf(index) === -1) {
-                                    this.markedItemRows.push(index);
-                                }
-                            });
-
-                        } else {
-                            this.menu[errorKey].valid = false;
-                            this.menu[errorKey].errorMsgs = errorResponse.response.data.errors[errorKey];
-                        }
-                    });
-
+                    this.renderErrors(errorResponse);
+                    this.isBusy = false;
+                });
+            },
+            updateMenu: function () {
+                axios.put(this.finalEndpointUri + "/" + this.menuId, {
+                    "title": this.menu.title.value,
+                    "type": this.menu.type.value,
+                    "items": this.finalizedMenuItems
+                }).then(response => {
+                    this.isBusy = false;
+                    this.menu.title.valid = true;
+                    this.menu.title.errorMsgs = [];
+                    if (response.status === RESPONSE_CODE.OK) {
+                        this.$bvModal.msgBoxOk(response.data.message, {
+                            size: "sm",
+                            okVariant: "success",
+                            centered: true,
+                            id: "fronds-edit-menu-message-success"
+                        });
+                    }
+                }).catch(errorResponse => {
+                    this.renderErrors(errorResponse);
                     this.isBusy = false;
                 });
             }

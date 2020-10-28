@@ -151,7 +151,8 @@
                 },
                 actionApiMethod: METHODS.POST,
                 isEdit: null,
-                selectedId: null
+                selectedId: null,
+                frondsEventPrefix: ""
 
             };
         },

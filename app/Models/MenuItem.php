@@ -48,6 +48,7 @@ use Illuminate\Support\Carbon;
  * @method static \Illuminate\Database\Query\Builder|MenuItem withTrashed()
  * @method static \Illuminate\Database\Query\Builder|MenuItem withoutTrashed()
  * @mixin \Eloquent
+ * @property-read MenuDefinition $definition
  */
 class MenuItem extends Model
 {
@@ -56,15 +57,27 @@ class MenuItem extends Model
     use FrondsUsesUUID;
 
     protected $fillable = [
-        'uuid', 'direct_to', 'external_link', 'page_id', 'label', 'field_id', 'list_order', 'menu_definition_id'
+        'uuid',
+        'direct_to',
+        'external_link',
+        'page_id',
+        'label',
+        'field_id',
+        'list_order',
+        'menu_definition_id'
     ];
 
+    protected $hidden = [
+        'id',
+        'deleted_at',
+        'menu_definition_id'
+    ];
     /**
      * @return BelongsTo
      */
     public function definition(): BelongsTo
     {
-        return $this->belongsTo(MenuDefinition::class);
+        return $this->belongsTo(MenuDefinition::class, 'menu_definition_id');
     }
 
     /**
