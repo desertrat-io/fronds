@@ -16,7 +16,7 @@
                 {{ actionItem.text }}
             </b-nav-item>
             <b-nav-item-dropdown v-else-if="actionItem.isDropdown" :text="actionItem.text">
-                <b-dropdown-item v-for="(child, $index) in actionItem.children" :key="$index"
+                <b-dropdown-item v-for="(child, $ind) in actionItem.children" :key="$ind"
                                  :href="child.href"
                 >
                     {{ child.text }}
@@ -64,6 +64,7 @@
 
                 return this.actionItems.map((item, index) => {
                     return {
+                        // eslint-disable-next-line no-prototype-builtins
                         link: item.hasOwnProperty("href") && item.href !== "",
                         text: item.text,
                         href: item.href,

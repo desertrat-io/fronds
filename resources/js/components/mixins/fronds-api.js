@@ -1,7 +1,7 @@
 import axios from "axios";
 import FrondsEvents from "./fronds-events";
 
-let payload = {};
+let payload;
 const formPayload = new FormData(),
     frondsApi = {
         lastApiResult: {},

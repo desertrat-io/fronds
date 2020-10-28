@@ -6,6 +6,7 @@ const Fronds = {};
     };
 })();
 window.Fronds = Fronds;
+// eslint-disable-next-line no-prototype-builtins
 if (window.hasOwnProperty("defaultBooted")) {
     window.defaultBooted();
 }

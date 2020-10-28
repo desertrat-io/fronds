@@ -92,6 +92,7 @@
             EventBus.$on("fronds-event-network", networkResult => {
                 if (networkResult.networkSuccess === true) {
                     this.completeApiSubmission(networkResult.networkData.data);
+                    // eslint-disable-next-line no-prototype-builtins
                     if (networkResult.networkData.data.hasOwnProperty("rsvp")) {
                         this.completeRsvpApiSubmission(networkResult.networkData.data.rsvp.to,
                                                        networkResult.networkData.data.rsvp.using,
@@ -129,6 +130,7 @@
             },
             handleRsvpResult(result) {
                 // for forms we just need to know if we're redirecting or staying on the same page
+                // eslint-disable-next-line no-prototype-builtins
                 if (result.hasOwnProperty("redirectTo")) {
                     location.href = result.redirectTo;
                 }
@@ -138,9 +140,9 @@
                 // when this is finished, the event to handle it will be captured.
                 // since it's event based we don't really care what tool was used to send the request, only
                 // that we have the data.
-                for (const i in this.formInputs) {
-                    if (this.formInputs.length > i) {
-                        this.addBodyParam(this.formInputs[i].$props.inputName, this.formInputs[i].$data.value);
+                for (const ind in this.formInputs) {
+                    if (this.formInputs.length > ind) {
+                        this.addBodyParam(this.formInputs[ind].$props.inputName, this.formInputs[ind].$data.value);
                     }
                 }
                 this.makeRequest();

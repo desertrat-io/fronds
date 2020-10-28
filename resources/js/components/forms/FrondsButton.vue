@@ -16,7 +16,8 @@
         </div>
         <div v-else-if="btnType === 'div'" :id="btnId" :style="btnOuterStyles" class="fronds-btn" :class="finalBtnClasses" @click="fireEvents">
             <div :style="btnStyles">
-                {{ btnText }}<slot />
+                {{ btnText }}
+                <slot />
             </div>
         </div>
         <div v-else-if="btnType === 'a'" :id="btnId" :style="btnOuterStyles" class="fronds-btn" :class="finalBtnClasses" @click="fireEvents">
@@ -25,18 +26,15 @@
     </div>
 </template>
 
-<style lang="scss" scoped>
-    .fronds-btn-comp {
-        display: inline-block;
-    }
-</style>
+
 <script>
 
     import FrondsEvents from "../mixins/fronds-events";
+
     const btnClassPrefix = "fronds-btn-";
 
     export default {
-        mixins: [ FrondsEvents ],
+        mixins: [FrondsEvents],
         props: {
             btnRole: {
                 type: String,
@@ -63,17 +61,23 @@
             btnStyles: {
                 type: Object,
                 required: false,
-                default: () => { return {}; }
+                default: () => {
+                    return {};
+                }
             },
             btnOuterStyles: {
                 type: Object,
                 required: false,
-                default: () => { return {}; }
+                default: () => {
+                    return {};
+                }
             },
             btnClasses: {
                 type: Array,
                 required: false,
-                default: () => { return[]; }
+                default: () => {
+                    return [];
+                }
             },
             btnText: {
                 type: String,
@@ -104,9 +108,7 @@
             }
         },
         data() {
-            return {
-
-            };
+            return {};
         },
         computed: {
             finalBtnClasses() {
@@ -134,3 +136,9 @@
         }
     };
 </script>
+
+<style lang="scss" scoped>
+.fronds-btn-comp {
+    display: inline-block;
+}
+</style>

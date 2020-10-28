@@ -31,33 +31,6 @@
     </table>
 </template>
 
-<style lang="scss" scoped>
-
-    .fronds-asset-list-table {
-        text-align: center;
-        width: 100%;
-        padding: 5px;
-
-        .fronds-tabular-header {
-            width: 100%;
-        }
-
-        .fronds-tabular-row {
-            padding: 2px;
-            height: 50px;
-            min-height: 50px;
-            &:hover:not(.fronds-tabular-row-no-highlight) {
-                background-color: #9bbad1;
-            }
-        }
-
-        .fronds-tabular-row-rule {
-            border-top: 1px black solid;
-        }
-
-    }
-
-</style>
 
 <script>
 
@@ -79,9 +52,11 @@
                         return true;
                     }
                     // first, check to be sure the needed keys are inside
+                    // eslint-disable-next-line no-prototype-builtins
                     const hasProperColumns = val.hasOwnProperty("columns") && val.columns.length <= 3;
                     // and if it does, just make sure the values are there. we're only going to work with
                     // what's actually inside. since the keys can be set, they can be validated later
+                    // eslint-disable-next-line no-prototype-builtins
                     return hasProperColumns && val.hasOwnProperty("values");
                 }
             },
@@ -226,7 +201,7 @@
             // TODO: in progress
             // eslint-disable-next-line no-unused-vars
             EventBus.$on("fronds-update-activity-list", payload => {
-                //this.internalList = payload;
+            //this.internalList = payload;
 
             });
         },
@@ -272,3 +247,31 @@
         }
     };
 </script>
+
+<style lang="scss" scoped>
+
+    .fronds-asset-list-table {
+        text-align: center;
+        width: 100%;
+        padding: 5px;
+
+        .fronds-tabular-header {
+            width: 100%;
+        }
+
+        .fronds-tabular-row {
+            padding: 2px;
+            height: 50px;
+            min-height: 50px;
+            &:hover:not(.fronds-tabular-row-no-highlight) {
+                background-color: #9bbad1;
+            }
+        }
+
+        .fronds-tabular-row-rule {
+            border-top: 1px black solid;
+        }
+
+    }
+
+</style>

@@ -28,13 +28,6 @@ export default {
         fireFrondsMouse(mouseEventName, payload) {
             EventBus.$emit(mouseEventName, payload);
         },
-        /**
-         *
-         * @param {String} uri
-         * @param {String} method
-         * @param {Object} data
-         * @param {Boolean} isSuccess null means no request has finished
-         */
         fireFrondsNetwork(uri, method, data, isSuccess) {
             EventBus.$emit("fronds-event-network", {
                 networkUri: uri,

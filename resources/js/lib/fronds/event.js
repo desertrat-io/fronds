@@ -14,11 +14,6 @@ export class EventBuilder {
         return this;
     }
 
-    /**
-     *
-     * @param {Element} attachTo
-     * @returns {EventBuilder}
-     */
     attachEventTo(attachTo) {
         eventBuild[attachSym] = attachTo;
         return this;
