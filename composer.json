@@ -10,7 +10,7 @@
   ],
   "license": "MIT",
   "require": {
-    "php": "^7.4",
+    "php": "^8.3",
     "ext-json": "*",
     "ext-pdo": "*",
     "alsofronie/eloquent-uuid": "^1.0",
